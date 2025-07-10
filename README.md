@@ -42,7 +42,7 @@ Steps to run the project in a local environment.
 ### **2. Clone the Project**
 
 ```bash
-git clone <your-repository-url>
+git clone <https://github.com/Eddie000321/vetchartUOPRASII.git>
 cd vetchartUOPRASII
 ```
 
