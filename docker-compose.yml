@@ -1,10 +1,58 @@
+# docker-compose.yml
+
+version: "3.8"
+
 services:
+  # Backend Service (Node.js)
   backend:
+    build: ./backend
+    container_name: vetchart_backend
+    ports:
+      - "8000:8000"
+    environment:
+      # This URL lets the backend connect to the db service below.
+      - DATABASE_URL=postgresql://user:password@db:5432/vetchartdb
+    volumes:
+      # Syncs your local code with the container for live updates.
+      - ./backend:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - db # Waits for the db to be ready before starting.
+    networks:
+      - vetchart_net
 
+  # Frontend Service (React/Vue + Nginx)
   frontend:
+    build: ./frontend
+    container_name: vetchart_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - vetchart_net
 
+  # Database Service (PostgreSQL)
   db:
+    image: postgres:18
+    container_name: vetchart_db
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=vetchartdb
+    ports:
+      - "5432:5432"
+    volumes:
+      # This ensures your database data is saved even if the container is removed.
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - vetchart_net
 
+# Defines the persistent storage volume for the database.
 volumes:
+  postgres_data:
 
+# Defines the custom network for services to communicate.
 networks:
+  vetchart_net:
+    driver: bridge

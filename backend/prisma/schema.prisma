@@ -13,3 +13,81 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// Defines a set of specific roles to ensure type safety.
+enum Role {
+  VET
+  STAFF
+  ADMIN
+}
+
+// --- Start of Models ---
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  password  String
+  // The user's role, constrained to the values in the Role enum.
+  role      Role     @default(STAFF)
+  createdAt DateTime @default(now())
+
+  // A User can write multiple medical records.
+  records   Record[]
+}
+
+model Owner {
+  id        Int      @id @default(autoincrement())
+  name      String
+  address   String?
+  email     String?  @unique
+  phone     String?
+  createdAt DateTime @default(now())
+
+  // An Owner can be associated with multiple Patients through the join table.
+  patients  OwnersOnPatients[]
+}
+
+model Patient {
+  id        Int      @id @default(autoincrement())
+  name      String
+  species   String?  // e.g., 'dog', 'cat'
+  status    String   @default("healthy")
+  createdAt DateTime @default(now())
+
+  // A Patient can have multiple Owners through the join table.
+  owners    OwnersOnPatients[]
+
+  // A Patient can have multiple medical records.
+  records   Record[]
+}
+
+// Join table for the many-to-many relationship between Owner and Patient.
+model OwnersOnPatients {
+  owner     Owner    @relation(fields: [ownerId], references: [id])
+  ownerId   Int      // Foreign Key to Owner
+  patient   Patient  @relation(fields: [patientId], references: [id])
+  patientId Int      // Foreign Key to Patient
+  assignedAt DateTime @default(now())
+  
+  // Describes the owner's relationship to the patient.
+  relationshipType String @default("family") // e.g., "main", "sub", "emergency"
+
+  // Defines a composite primary key for this join table.
+  @@id([ownerId, patientId])
+}
+
+model Record {
+  id         Int      @id @default(autoincrement())
+  symptoms   String
+  diagnosis  String
+  visitDate  DateTime @default(now())
+
+  // A Record belongs to one Patient.
+  patient    Patient  @relation(fields: [patientId], references: [id])
+  patientId  Int      // Foreign Key to Patient
+
+  // A Record is written by one User.
+  author     User     @relation(fields: [authorId], references: [id])
+  authorId   Int      // Foreign Key to User
+}
