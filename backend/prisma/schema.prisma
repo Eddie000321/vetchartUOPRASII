@@ -52,6 +52,8 @@ model Patient {
   id        Int      @id @default(autoincrement())
   name      String
   species   String?  // e.g., 'dog', 'cat'
+  breed     String?
+  birthDate DateTime?
   status    String   @default("healthy")
   createdAt DateTime @default(now())
 

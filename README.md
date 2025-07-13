@@ -1,6 +1,6 @@
 # Vet Chart - Animal Hospital EMR System (MVP)
 
-`Vet Chart` is an Electronic Medical Record (EMR) system for the efficient management of animal hospitals. The MVP version focuses on the core features of managing owner and patient information, and medical records.
+`Vet Chart` is an Electronic Medical Record (EMR) system for the efficient management of animal hospitals. This MVP focuses on the core features of owner, patient, and medical record management.
 
 -----
 
@@ -12,77 +12,90 @@
 
 -----
 
-## ️ Future Updates
-
-*   **Appointment Management System**: Functionality to create and manage appointments by date/time and track their status (Scheduled, Completed, Canceled).
-*   **Invoicing System**: A feature to automatically generate invoices based on medical services and track payment status.
-*   **Service Item Management**: Functionality to manage service items and prices, such as treatments and medications offered by the hospital.
-*   **Customer Notification Feature**: Integration of an automatic notification system (SMS/Email) for appointment reminders, vaccination schedules, etc.
-
------
-
 ## ️ Tech Stack
 
-This project is designed for each service to run independently in a containerized environment based on Docker.
+This project runs in a containerized environment powered by Docker.
 
-*   **Backend**: Node.js, Express, Prisma (ORM), PostgreSQL (Database)
-*   **Frontend**: React (or Vue.js), Nginx (Web Server)
+*   **Backend**: Node.js (v18), Express, Prisma (ORM)
+*   **Frontend**: React (Vite), Nginx (as web server)
+*   **Database**: PostgreSQL (v16)
 *   **DevOps**: Docker, Docker Compose
 
 -----
 
 ##  Getting Started
 
-Steps to run the project in a local environment.
+Steps to run the project in a local development environment.
 
 ### **1. Prerequisites**
 
-*   You must have [Docker](https://www.docker.com/get-started) and [Docker Compose](https://docs.docker.com/compose/install/) installed.
+*   You must have **Docker Desktop** installed and **running** on your system.
 
 ### **2. Clone the Project**
 
 ```bash
-git clone <https://github.com/Eddie000321/vetchartUOPRASII.git>
+git clone <your-repository-url>
 cd vetchartUOPRASII
 ```
 
-### **3. Set Environment Variables**
+### **3. Environment Variables**
 
-Create a `.env` file in the `backend` folder and enter the database connection information.
+Ensure a `.env` file exists at `backend/.env` with the following content. This is required for the backend to connect to the database container.
 
-`backend/.env`
 ```env
-# PostgreSQL Database Connection Info
-# Must match the values set for the db service in the docker-compose.yml file.
+# backend/.env
 DATABASE_URL="postgresql://user:password@db:5432/vetchartdb?schema=public"
 ```
 
 ### **4. Run the Application**
 
-Run the command below in the project root directory to start all services.
+Use the modern `docker compose` command from the project's root directory to build and start all services.
 
 ```bash
-# Build the images and run the containers in the background.
-docker-compose up --build -d
+# Build images and start containers in the background
+docker compose up --build -d
 ```
 
-If the application starts successfully, you can access it at the following addresses:
+After the command completes, the services will be available:
 
 *   **Frontend**: `http://localhost:3000`
 *   **Backend API**: `http://localhost:8000`
 
 -----
 
-##  MVP API Endpoints
+##  Development Commands
 
-A list of core API endpoints to be implemented in the MVP version.
+*   **View Logs**: To see the real-time logs from all running containers:
+    ```bash
+    docker compose logs -f
+    ```
+*   **Stop Services**: To stop all running containers:
+    ```bash
+    docker compose down
+    ```
+
+-----
+
+##  Troubleshooting
+
+*   **Port is already in use**: If you see an error like `address already in use` for ports `8000` or `5432`, it means another service on your computer is using that port. Stop the other service and try again. This can happen if you previously ran `node server.js` manually.
+
+*   **Docker Credential Errors**: If you encounter an error like `failed to get credentials` or `executable file not found in $PATH` while Docker is trying to pull an image, it points to an issue with your Docker Desktop installation. A common workaround is to pull the required images manually:
+    ```bash
+    docker pull postgres:16
+    docker pull node:20-alpine
+    docker pull nginx:stable-alpine
+    ```
+    After pulling the images, run `docker compose up --build -d` again.
+
+-----
+
+## MVP API Endpoints
 
 | Feature | HTTP Method | URL | Description |
 | :--- | :--- | :--- | :--- |
-| **Authentication** | `POST` | `/api/auth/register` | Register |
-| | `POST` | `/api/auth/login` | Login |
-| **Patient** | `POST` | `/api/patients` | Register new patient |
+| **Owner** | `POST` | `/api/owners` | Register a new owner |
+| **Patient** | `POST` | `/api/patients` | Register a new patient (requires `ownerId`) |
 | | `GET` | `/api/patients` | Get all patients |
-| | `GET` | `/api/patients/:id` | Get specific patient info |
-| **Medical Record**| `POST` | `/api/records` | Create new medical record |
-| | `GET` | `/api/patients/:patientId/records` | Get medical records for a specific patient|
+| | `GET` | `/api/patients/:id` | Get a specific patient's details |
+| **Record**| `POST` | `/api/records` | Create a new medical record |
